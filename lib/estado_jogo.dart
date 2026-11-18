@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Heroi {
   Heroi(this.nome, this.regiao, this.cor, this.icone, this.habilidade, {this.emUso = false});
@@ -47,6 +48,45 @@ class EstadoJogo extends ChangeNotifier {
 
   int vida = vidaPadrao;
   int dano = danoPadrao;
+
+  // --- Persistência: a partida sobrevive a recarregar a página ou fechar o app.
+  static const _kHeroi = 'heroi', _kVida = 'vida', _kDano = 'dano';
+
+  /// Restaura a partida salva (se houver). Chamar antes do `runApp`.
+  Future<void> carregar() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final nome = prefs.getString(_kHeroi);
+      final h = herois.where((e) => e.nome == nome).firstOrNull;
+      if (h == null) return;
+      heroi = h..emUso = true;
+      vida = prefs.getInt(_kVida) ?? vidaPadrao;
+      dano = prefs.getInt(_kDano) ?? danoPadrao;
+    } catch (_) {
+      // Sem armazenamento disponível: segue sem partida salva.
+    }
+  }
+
+  Future<void> _salvar() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (heroi == null) {
+        await prefs.remove(_kHeroi);
+        await prefs.remove(_kVida);
+        await prefs.remove(_kDano);
+      } else {
+        await prefs.setString(_kHeroi, heroi!.nome);
+        await prefs.setInt(_kVida, vida);
+        await prefs.setInt(_kDano, dano);
+      }
+    } catch (_) {}
+  }
+
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+    _salvar();
+  }
 
   void escolherHeroi(Heroi h) {
     heroi = h..emUso = true;

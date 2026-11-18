@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'estado_jogo.dart';
 import 'telas/inicio.dart';
+import 'telas/principal.dart';
 import 'widgets/comuns.dart';
 
-void main() => runApp(const BrasasApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await EstadoJogo.i.carregar();
+  runApp(const BrasasApp());
+}
 
 class BrasasApp extends StatelessWidget {
   const BrasasApp({super.key});
@@ -42,7 +48,12 @@ class BrasasApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const TelaInicio(),
+      // Com partida salva, abre direto no jogo; a tela inicial fica por baixo.
+      onGenerateInitialRoutes: (_) => [
+        MaterialPageRoute(builder: (_) => const TelaInicio()),
+        if (EstadoJogo.i.heroi != null)
+          MaterialPageRoute(builder: (_) => const TelaPrincipal()),
+      ],
     );
   }
 }
