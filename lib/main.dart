@@ -48,6 +48,9 @@ class BrasasApp extends StatelessWidget {
           ),
         ),
       ),
+      // Sem `home` (ou routes/onGenerateRoute) o MaterialApp não cria o
+      // Navigator e a tela fica vazia. O `home` também atende a rota '/'.
+      home: const TelaInicio(),
       // Com partida salva, abre direto no jogo; a tela inicial fica por baixo.
       onGenerateInitialRoutes: (_) => [
         MaterialPageRoute(builder: (_) => const TelaInicio()),
