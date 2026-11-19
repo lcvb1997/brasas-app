@@ -22,6 +22,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+          # Fixado na mesma versão usada localmente: com a 3.50.0 o app
+          # publicado abria só uma tela cinza vazia.
+          flutter-version: 3.47.9
           cache: true
       - run: flutter pub get
       - run: flutter build web --release --base-href "/brasas-app/"
